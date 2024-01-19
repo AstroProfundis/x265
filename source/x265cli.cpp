@@ -1017,7 +1017,7 @@ namespace X265_NS {
             if (reconFileBitDepth == 0)
                 reconFileBitDepth = param->internalBitDepth;
             this->recon = ReconFile::open(reconfn, param->sourceWidth, param->sourceHeight, reconFileBitDepth,
-                param->fpsNum, param->fpsDenom, param->internalCsp);
+                param->fpsNum, param->fpsDenom, param->internalCsp, param->sourceBitDepth);
             if (this->recon->isFail())
             {
                 x265_log(param, X265_LOG_WARNING, "unable to write reconstructed outputs file\n");
