@@ -41,18 +41,24 @@ jobs:
         }
       shell: pwsh
     - name: Checkout x265
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: x265
         fetch-depth: 0
+    - name: Extract branch name
+      shell: bash
+      id: extract_branch
+      run: |
+        branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+        echo "BN=$branch" >> $GITHUB_OUTPUT
     - name: Cache FFmpeg
       id: cache-ff
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ffmpeg
         key: ${{matrix.target_cpu}}-${{matrix.toolchain}}-ff
     - name: Checkout FFmpeg
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: ffmpeg
         repository: FFmpeg/FFmpeg
@@ -60,12 +66,12 @@ jobs:
       if: steps.cache-ff.outputs.cache-hit != 'true'
     - name: Cache mimalloc
       id: cache-mi
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: mimalloc
         key: ${{matrix.target_cpu}}-${{matrix.toolchain}}-mi
     - name: Checkout mimalloc
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: mimalloc
         repository: microsoft/mimalloc
@@ -146,9 +152,9 @@ jobs:
         mkdir dist
         cp ${{env.DLL_DEPS}} build/10b*/x265*.exe dist
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
-        name: x265-win64-${{matrix.target_cpu}}-${{matrix.toolchain}}-full
+        name: x265-win64-${{matrix.target_cpu}}-${{matrix.toolchain}}-${{ steps.extract_branch.outputs.BN }}
         path: dist/*
 
     - name: Compress artifact for release
