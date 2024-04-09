@@ -1,12 +1,14 @@
 name: Build
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       tag:
         description: 'which tag to upload to'
         default: ''
+      prerelease:
+        description: 'mark pre-release'
+        default: true
 
 jobs:
   build:
@@ -19,15 +21,13 @@ jobs:
         target_cpu:
         - x86-64
         - x86-64-v3
-        #- ivybridge
-        #- haswell
-        - broadwell
+        - x86-64-v4
+        - haswell
         - skylake
         - alderlake
-        #- bdver4
-        #- znver1
         - znver2
         - znver3
+        - znver4
         toolchain:
         - clang
         #- ucrt
@@ -162,14 +162,14 @@ jobs:
       run: |
         cd dist
         # do not release profiling binary
-        7za a -t7z -mx=7 ../x265-win64-${{matrix.target_cpu}}-${{matrix.toolchain}}.${{ github.event.inputs.tag }}.7z x265.exe
+        7za a -t7z -mx=7 ../x265-win64-${{matrix.target_cpu}}-${{matrix.toolchain}}.${{ github.event.inputs.tag }}.7z *.exe
 
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: github.event_name == 'workflow_dispatch' && github.event.inputs.tag != ''
       with:
         tag_name: ${{ github.event.inputs.tag }}
         files: x265-win64-${{matrix.target_cpu}}-${{matrix.toolchain}}.${{ github.event.inputs.tag }}.7z
         fail_on_unmatched_files: true
         generate_release_notes: false
-        prerelease: true
+        prerelease: ${{ github.event.inputs.prerelease }}
